@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_deposit_contract_user,deposit.contract.user,model_deposit_contract,sales_team.group_sale_salesman,1,1,1,1
+access_deposit_contract_manager,deposit.contract.manager,model_deposit_contract,sales_team.group_sale_manager,1,1,1,1
+access_deposit_ledger_user,deposit.ledger.user,model_deposit_ledger,sales_team.group_sale_salesman,1,0,1,0
+access_deposit_ledger_manager,deposit.ledger.manager,model_deposit_ledger,sales_team.group_sale_manager,1,0,1,0

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Tree View: Libro Mayor (solo para búsqueda/consulta) -->
+    <record id="view_deposit_ledger_tree" model="ir.ui.view">
+        <field name="name">deposit.ledger.tree</field>
+        <field name="model">deposit.ledger</field>
+        <field name="arch" type="xml">
+            <tree string="Libro Mayor de Acopios" create="0" delete="0" edit="0">
+                <field name="contract_id"/>
+                <field name="date"/>
+                <field name="move_type"/>
+                <field name="amount"/>
+                <field name="quantity"/>
+                <field name="ref"/>
+            </tree>
+        </field>
+    </record>
+
+</odoo>
