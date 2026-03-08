@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Compatible Odoo 17/18/19 -->
+<odoo>
+
+    <record id="res_config_settings_view_form_deposit" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.deposit</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app data-string="Acopios" string="Acopios" name="sale_customer_deposit">
+                    <block title="Parámetros por Defecto" name="deposit_settings_block">
+                        <setting id="deposit_default_type" string="Tipo de Acopio por Defecto"
+                                 help="Tipo predefinido al crear nuevos contratos de acopio">
+                            <field name="deposit_default_type"/>
+                        </setting>
+                        <setting id="deposit_default_index_product" string="Producto Índice por Defecto"
+                                 help="Producto base para acopios tipo Índice (opcional)">
+                            <field name="deposit_default_index_product_id" options="{'no_create': True}"/>
+                        </setting>
+                        <setting id="deposit_service_product" string="Producto Consumo de Acopio"
+                                 help="Producto de servicio para la línea negativa. Debe tener Cuenta de Ingresos = Anticipo de Clientes.">
+                            <field name="deposit_service_product_id" options="{'no_create': True}"/>
+                        </setting>
+                        <setting id="deposit_liability_account" string="Cuenta Anticipo de Clientes"
+                                 help="Cuenta de pasivo. Se asigna automáticamente al producto Consumo de Acopio.">
+                            <field name="deposit_liability_account_id" options="{'no_create': True}"/>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

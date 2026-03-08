@@ -1,6 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
+    <!-- Menú de configuración en Ajustes -->
+    <record id="action_deposit_config_settings" model="ir.actions.act_window">
+        <field name="name">Acopios</field>
+        <field name="res_model">res.config.settings</field>
+        <field name="view_mode">form</field>
+        <field name="target">inline</field>
+        <field name="context">{'module': 'sale_customer_deposit'}</field>
+    </record>
+    <menuitem id="menu_deposit_config_settings"
+              name="Acopios"
+              parent="base.menu_config"
+              action="action_deposit_config_settings"
+              sequence="100"/>
+
     <!-- Menú principal bajo Ventas -->
     <record id="menu_deposit_contract_root" model="ir.ui.menu">
         <field name="name">Acopios</field>

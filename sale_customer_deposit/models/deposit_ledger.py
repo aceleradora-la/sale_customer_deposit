@@ -52,11 +52,18 @@ class DepositLedger(models.Model):
         currency_field='currency_id',
         default=0.0,
     )
-    # Cantidad para tipo Index Product (negativo = consumo)
+    # Cantidad para tipo Index Product o Cantidades Fijas (negativo = consumo)
     quantity = fields.Float(
         string='Cantidad',
         digits='Product Unit of Measure',
         default=0.0,
+    )
+    # Producto para tipo Cantidades Fijas (identifica qué producto se consumió)
+    product_id = fields.Many2one(
+        comodel_name='product.product',
+        string='Producto',
+        ondelete='set null',
+        help='Producto consumido (tipo Cantidades Fijas)',
     )
     currency_id = fields.Many2one(
         comodel_name='res.currency',

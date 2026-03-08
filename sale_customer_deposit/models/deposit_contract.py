@@ -123,8 +123,13 @@ class DepositContract(models.Model):
         store=True,
     )
 
-    # Fixed Quantities: líneas de productos (se implementará en pasos posteriores)
-    # deposit_line_ids = fields.One2many(...)
+    # Fixed Quantities: líneas de productos
+    deposit_line_ids = fields.One2many(
+        comodel_name='deposit.contract.line',
+        inverse_name='contract_id',
+        string='Líneas de Productos',
+        help='Productos y cantidades del acopio (tipo Cantidades Fijas)',
+    )
 
     # -------------------------------------------------------------------------
     # Campos contables y referencias
@@ -180,10 +185,17 @@ class DepositContract(models.Model):
     # -------------------------------------------------------------------------
     @api.model_create_multi
     def create(self, vals_list):
-        """Genera secuencia para name si no se proporciona."""
+        """Genera secuencia para name y aplica valores por defecto de configuración."""
+        ICP = self.env['ir.config_parameter'].sudo()
+        default_type = ICP.get_param('sale_customer_deposit.deposit_default_type', 'fixed_pricelist')
+        default_index_id = ICP.get_param('sale_customer_deposit.deposit_default_index_product_id', '0')
         for vals in vals_list:
             if vals.get('name', _('Nuevo')) == _('Nuevo'):
                 vals['name'] = self.env['ir.sequence'].next_by_code(
                     'deposit.contract'
                 ) or _('Nuevo')
+            if 'deposit_type' not in vals:
+                vals['deposit_type'] = default_type
+            if vals.get('deposit_type') == 'index_product' and 'product_id' not in vals and default_index_id and default_index_id != '0':
+                vals['product_id'] = int(default_index_id)
         return super().create(vals_list)

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Compatible Odoo 17/18/19: attrs para 17, invisible para 18/19 -->
+<odoo>
+
+    <record id="view_order_form_deposit" model="ir.ui.view">
+        <field name="name">sale.order.form.deposit</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <!-- Campo contrato de acopio debajo del cliente -->
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="deposit_contract_id" options="{'no_create': True}"/>
+            </xpath>
+            <!-- Botón Aplicar Acopio en el header: visible solo con contrato y en borrador -->
+            <xpath expr="//button[@name='action_confirm'][1]" position="before">
+                <button name="action_apply_deposit" type="object"
+                        string="Aplicar Acopio" class="btn-secondary"
+                        attrs="{'invisible': ['|', ('deposit_contract_id', '=', False), ('state', '!=', 'draft')]}"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
