@@ -21,7 +21,6 @@ Tipos de acopio soportados:
     'website': 'https://github.com/aceleradora-la/sale_customer_deposit',
     'license': 'LGPL-3',
     'depends': [
-        'base_setup',
         'mail',
         'sale_management',
         'account',
@@ -40,5 +39,5 @@ Tipos de acopio soportados:
     'installable': True,
     'application': False,
     'auto_install': False,
-    'post_init_hook': 'sale_customer_deposit.hooks.post_init_hook_deposit',
+    'post_init_hook': 'post_init_hook_deposit',
 }
