@@ -27,6 +27,7 @@ Módulo Odoo para gestión de **Acopios de Materiales** (Customer Material Depos
 
 ## Dependencias
 
+- `base_setup`
 - `mail`
 - `sale_management`
 - `account`
@@ -42,6 +43,18 @@ Módulo Odoo para gestión de **Acopios de Materiales** (Customer Material Depos
 
 - Ventas → Acopios → Contratos de Acopio
 - Ajustes → Acopios (configuración)
+
+## Solución de problemas
+
+Si la instalación falla, revisar el log de Odoo:
+```bash
+# Con odoo-bin en terminal, el error aparece en consola
+# O revisar el archivo de log configurado en odoo.conf
+```
+
+Errores comunes:
+- **Dependencias no instaladas**: Asegurarse de tener Ventas, Contabilidad e Inventario instalados
+- **base_setup**: El módulo "Configuración" debe estar instalado (viene con Odoo)
 
 ## Autor
 

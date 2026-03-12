@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data noupdate="1">
+        <!-- Categoría para productos del módulo (sin parent para evitar refs externos) -->
+        <record id="product_category_deposit" model="product.category">
+            <field name="name">Acopios</field>
+        </record>
         <!-- Producto Servicio para línea negativa de Consumo de Acopio -->
         <record id="product_template_consumo_acopio" model="product.template">
             <field name="name">Consumo de Acopio</field>
             <field name="default_code">CONSUMO-ACOPIO</field>
             <field name="type">service</field>
-            <field name="categ_id" ref="product.product_category_all"/>
+            <field name="categ_id" ref="product_category_deposit"/>
             <field name="uom_id" ref="uom.product_uom_unit"/>
             <field name="uom_po_id" ref="uom.product_uom_unit"/>
             <field name="list_price">0</field>

@@ -7,10 +7,12 @@ def post_init_hook_deposit(env):
             'sale_customer_deposit.product_template_consumo_acopio',
             raise_if_not_found=False
         )
-        if product:
-            env['ir.config_parameter'].sudo().set_param(
-                'sale_customer_deposit.deposit_service_product_id',
-                str(product.product_variant_id.id),
-            )
+        if product and hasattr(product, 'product_variant_id'):
+            variant = product.product_variant_id
+            if variant:
+                env['ir.config_parameter'].sudo().set_param(
+                    'sale_customer_deposit.deposit_service_product_id',
+                    str(variant.id),
+                )
     except Exception:
         pass  # No fallar la instalación si hay error
