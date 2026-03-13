@@ -7,11 +7,16 @@
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
-            <!-- Campo contrato de acopio debajo del cliente -->
+            <!-- Bloque Acopio debajo del cliente -->
             <xpath expr="//field[@name='partner_id']" position="after">
-                <field name="deposit_contract_id" options="{'no_create': True}"/>
+                <field name="is_deposit"/>
+                <field name="deposit_type" invisible="not is_deposit or deposit_contract_id"/>
+                <field name="deposit_index_product_id" invisible="not is_deposit or deposit_contract_id or deposit_type != 'index_product'"/>
+                <field name="deposit_contract_id" options="{'no_create': True}"
+                       invisible="not is_deposit"
+                       placeholder="Vacío = crear nuevo contrato desde esta orden"/>
             </xpath>
-            <!-- Botón Aplicar Acopio en el header: visible solo con contrato y en borrador -->
+            <!-- Botón Aplicar Acopio: visible cuando hay contrato existente (consumir) y en borrador -->
             <xpath expr="//button[@name='action_confirm'][1]" position="before">
                 <button name="action_apply_deposit" type="object"
                         string="Aplicar Acopio" class="btn-secondary"

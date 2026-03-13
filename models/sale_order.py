@@ -6,12 +6,40 @@ from odoo import _, api, fields, models
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
 
+    # -------------------------------------------------------------------------
+    # Crear acopio (primera vez): checkbox + tipo + producto índice
+    # -------------------------------------------------------------------------
+    is_deposit = fields.Boolean(
+        string='Es Acopio',
+        default=False,
+        help='Marcar si esta orden crea o alimenta un contrato de acopio',
+    )
+    deposit_type = fields.Selection(
+        selection=[
+            ('fixed_pricelist', 'Lista de Precios Fija'),
+            ('index_product', 'Producto Índice / Crédito Base'),
+            ('fixed_quantities', 'Cantidades Fijas'),
+        ],
+        string='Tipo de Acopio',
+        default='fixed_pricelist',
+        help='Solo aplica al crear un nuevo contrato (primera orden de acopio)',
+    )
+    deposit_index_product_id = fields.Many2one(
+        comodel_name='product.product',
+        string='Producto Índice',
+        domain=[('type', '=', 'product')],
+        help='Producto base para conversión (solo tipo Producto Índice). Cantidad = Monto / Precio.',
+    )
+
+    # -------------------------------------------------------------------------
+    # Consumir acopio: contrato existente
+    # -------------------------------------------------------------------------
     deposit_contract_id = fields.Many2one(
         comodel_name='deposit.contract',
         string='Contrato de Acopio',
         ondelete='set null',
         domain="[('partner_id', '=', partner_id), ('state', 'in', ('confirmed', 'in_progress'))]",
-        help='Contrato de acopio activo del cliente para aplicar descuento',
+        help='Contrato existente para consumir. Vacío = se crea nuevo contrato desde esta orden.',
     )
 
     def _get_consumo_acopio_product(self):
@@ -168,8 +196,90 @@ class SaleOrder(models.Model):
         })
         return True
 
+    def _create_deposit_contract_from_order(self):
+        """
+        Crea un contrato de acopio desde la orden (primera vez).
+        Según deposit_type: pricelist+amount, index_product+qty, o líneas fijas.
+        """
+        self.ensure_one()
+        if not self.is_deposit or self.deposit_contract_id:
+            return
+        if not self.order_line.filtered(lambda l: l.product_id and not l.display_type):
+            raise models.UserError(_('Agregue productos a la orden para crear el acopio.'))
+
+        Contract = self.env['deposit.contract']
+        ICP = self.env['ir.config_parameter'].sudo()
+        deposit_type = self.deposit_type or ICP.get_param(
+            'sale_customer_deposit.deposit_default_type', 'fixed_pricelist'
+        )
+        default_index_id = ICP.get_param(
+            'sale_customer_deposit.deposit_default_index_product_id', '0'
+        )
+
+        vals = {
+            'partner_id': self.partner_id.id,
+            'company_id': self.company_id.id,
+            'deposit_type': deposit_type,
+            'state': 'confirmed',
+        }
+
+        if deposit_type == 'fixed_pricelist':
+            vals['pricelist_id'] = (self.pricelist_id or self.partner_id.property_product_pricelist).id
+            vals['amount_total'] = self.amount_total
+
+        elif deposit_type == 'index_product':
+            product = self.deposit_index_product_id
+            if not product and default_index_id and str(default_index_id).isdigit():
+                product = self.env['product.product'].browse(int(default_index_id)).exists()
+            if not product:
+                raise models.UserError(
+                    _('Seleccione un Producto Índice o configure uno por defecto en Ajustes.')
+                )
+            vals['product_id'] = product.id
+            vals['amount_total'] = self.amount_total
+            # Cantidad índice = monto total / precio unitario del producto índice
+            product = product.with_company(self.company_id)
+            pricelist = self.pricelist_id or self.partner_id.property_product_pricelist
+            if pricelist:
+                try:
+                    price = pricelist._get_product_price(product, 1.0, self.partner_id)
+                except (TypeError, AttributeError):
+                    price = product.list_price
+            else:
+                price = product.list_price
+            if not price or price <= 0:
+                raise models.UserError(
+                    _('No se pudo obtener el precio del producto índice "%s".', product.display_name)
+                )
+            vals['quantity_index'] = self.amount_total / price
+
+        elif deposit_type == 'fixed_quantities':
+            vals['amount_total'] = 0.0
+            line_vals = []
+            for line in self.order_line:
+                if line.display_type or not line.product_id:
+                    continue
+                line_vals.append((0, 0, {
+                    'product_id': line.product_id.id,
+                    'quantity': line.product_uom_qty,
+                }))
+            if not line_vals:
+                raise models.UserError(
+                    _('Para Cantidades Fijas, agregue productos con cantidades en las líneas.')
+                )
+            vals['deposit_line_ids'] = line_vals
+
+        contract = Contract.create(vals)
+        self.deposit_contract_id = contract.id
+        return contract
+
     def action_confirm(self):
-        """Al confirmar, registrar en el ledger si hay consumo de acopio."""
+        """Crear contrato si es acopio nuevo; registrar en ledger si hay consumo."""
+        # 1. Crear contrato si is_deposit y no hay contrato (primera vez)
+        for order in self:
+            if order.is_deposit and not order.deposit_contract_id and order.state == 'draft':
+                order._create_deposit_contract_from_order()
+
         orders_with_deposit = self.filtered(
             lambda o: o.deposit_contract_id and o.state == 'draft'
         )
