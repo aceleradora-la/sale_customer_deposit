@@ -39,39 +39,43 @@ class ResConfigSettings(models.TransientModel):
     )
 
     # -------------------------------------------------------------------------
-    # get_default_ para Many2one (config_parameter no soporta Many2one directo)
+    # get_default_/set_ para Many2one (patrón Odoo 19; config_parameter no soporta Many2one)
     # -------------------------------------------------------------------------
     @api.model
-    def get_values(self):
-        res = super().get_values()
+    def get_default_deposit_default_index_product_id(self):
         ICP = self.env['ir.config_parameter'].sudo()
-        index_product_id = ICP.get_param('sale_customer_deposit.deposit_default_index_product_id', default='0')
-        service_product_id = ICP.get_param('sale_customer_deposit.deposit_service_product_id', default='0')
-        liability_account_id = ICP.get_param('sale_customer_deposit.deposit_liability_account_id', default='0')
-        res.update(
-            deposit_default_index_product_id=int(index_product_id) if index_product_id.isdigit() else False,
-            deposit_service_product_id=int(service_product_id) if service_product_id.isdigit() else False,
-            deposit_liability_account_id=int(liability_account_id) if liability_account_id.isdigit() else False,
-        )
-        return res
+        val = ICP.get_param('sale_customer_deposit.deposit_default_index_product_id', default='0')
+        return {'deposit_default_index_product_id': int(val) if val and str(val).isdigit() else False}
 
-    def set_values(self):
-        super().set_values()
+    @api.model
+    def get_default_deposit_service_product_id(self):
         ICP = self.env['ir.config_parameter'].sudo()
-        ICP.set_param(
-            'sale_customer_deposit.deposit_default_index_product_id',
-            str(self.deposit_default_index_product_id.id) if self.deposit_default_index_product_id else '0',
-        )
-        ICP.set_param(
-            'sale_customer_deposit.deposit_service_product_id',
-            str(self.deposit_service_product_id.id) if self.deposit_service_product_id else '0',
-        )
-        ICP.set_param(
-            'sale_customer_deposit.deposit_liability_account_id',
-            str(self.deposit_liability_account_id.id) if self.deposit_liability_account_id else '0',
-        )
-        # Asignar cuenta de pasivo al producto Consumo de Acopio
-        if self.deposit_service_product_id and self.deposit_liability_account_id:
+        val = ICP.get_param('sale_customer_deposit.deposit_service_product_id', default='0')
+        return {'deposit_service_product_id': int(val) if val and str(val).isdigit() else False}
+
+    @api.model
+    def get_default_deposit_liability_account_id(self):
+        ICP = self.env['ir.config_parameter'].sudo()
+        val = ICP.get_param('sale_customer_deposit.deposit_liability_account_id', default='0')
+        return {'deposit_liability_account_id': int(val) if val and str(val).isdigit() else False}
+
+    def set_deposit_default_index_product_id(self):
+        ICP = self.env['ir.config_parameter'].sudo()
+        val = self.deposit_default_index_product_id
+        ICP.set_param('sale_customer_deposit.deposit_default_index_product_id', str(val.id) if val else '0')
+
+    def set_deposit_service_product_id(self):
+        ICP = self.env['ir.config_parameter'].sudo()
+        val = self.deposit_service_product_id
+        ICP.set_param('sale_customer_deposit.deposit_service_product_id', str(val.id) if val else '0')
+        if val and self.deposit_liability_account_id:
+            self._set_deposit_product_income_account()
+
+    def set_deposit_liability_account_id(self):
+        ICP = self.env['ir.config_parameter'].sudo()
+        val = self.deposit_liability_account_id
+        ICP.set_param('sale_customer_deposit.deposit_liability_account_id', str(val.id) if val else '0')
+        if self.deposit_service_product_id and val:
             self._set_deposit_product_income_account()
 
     def _set_deposit_product_income_account(self):
