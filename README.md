@@ -55,6 +55,7 @@ Si la instalación falla, revisar el log de Odoo:
 Errores comunes:
 - **Dependencias no instaladas**: Asegurarse de tener Ventas, Contabilidad e Inventario instalados
 - **base_setup**: El módulo "Configuración" debe estar instalado (viene con Odoo)
+- **Odoo 19**: El módulo es compatible; se eliminó `uom_po_id` (campo deprecado en product.template)
 
 ## Autor
 

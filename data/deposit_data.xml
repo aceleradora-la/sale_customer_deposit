@@ -12,7 +12,6 @@
             <field name="type">service</field>
             <field name="categ_id" ref="product_category_deposit"/>
             <field name="uom_id" ref="uom.product_uom_unit"/>
-            <field name="uom_po_id" ref="uom.product_uom_unit"/>
             <field name="list_price">0</field>
             <field name="invoice_policy">order</field>
             <field name="purchase_ok" eval="False"/>
