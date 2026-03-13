@@ -34,7 +34,7 @@ class ResConfigSettings(models.TransientModel):
     deposit_liability_account_id = fields.Many2one(
         comodel_name='account.account',
         string='Cuenta Anticipo de Clientes',
-        domain="[('deprecated', '=', False)]",
+        domain="[('account_type', 'in', ['liability_current', 'liability_non_current', 'liability_payable'])]",
         help='Cuenta de pasivo para anticipos. Se asigna al producto Consumo de Acopio como Cuenta de Ingresos.',
     )
 
