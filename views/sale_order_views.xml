@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Compatible Odoo 17/18/19: attrs para 17, invisible para 18/19 -->
+<!-- Odoo 17+: invisible directo (attrs/states deprecados desde 17.0) -->
 <odoo>
 
     <record id="view_order_form_deposit" model="ir.ui.view">
@@ -15,7 +15,7 @@
             <xpath expr="//button[@name='action_confirm'][1]" position="before">
                 <button name="action_apply_deposit" type="object"
                         string="Aplicar Acopio" class="btn-secondary"
-                        attrs="{'invisible': ['|', ('deposit_contract_id', '=', False), ('state', '!=', 'draft')]}"/>
+                        invisible="not deposit_contract_id or state != 'draft'"/>
             </xpath>
         </field>
     </record>
