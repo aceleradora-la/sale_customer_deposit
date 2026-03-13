@@ -15,15 +15,7 @@
               action="action_deposit_config_settings"
               sequence="100"/>
 
-    <!-- Menú principal bajo Ventas -->
-    <record id="menu_deposit_contract_root" model="ir.ui.menu">
-        <field name="name">Acopios</field>
-        <field name="parent_id" ref="sale.sale_menu_root"/>
-        <field name="sequence">50</field>
-        <field name="action" ref="action_deposit_contract"/>
-    </record>
-
-    <!-- Acción: Lista de Contratos -->
+    <!-- Acción: Lista de Contratos (debe definirse antes del menú que la referencia) -->
     <record id="action_deposit_contract" model="ir.actions.act_window">
         <field name="name">Contratos de Acopio</field>
         <field name="res_model">deposit.contract</field>
@@ -39,6 +31,14 @@
                 Producto Índice y Cantidades Fijas.
             </p>
         </field>
+    </record>
+
+    <!-- Menú principal bajo Ventas -->
+    <record id="menu_deposit_contract_root" model="ir.ui.menu">
+        <field name="name">Acopios</field>
+        <field name="parent_id" ref="sale.sale_menu_root"/>
+        <field name="sequence">50</field>
+        <field name="action" ref="action_deposit_contract"/>
     </record>
 
 </odoo>
